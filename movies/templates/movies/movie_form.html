@@ -1,0 +1,95 @@
+{% extends 'movies/base.html' %}
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<section class="py-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-8">
+
+        <div class="text-center mb-3">
+          <h2 class="h3 mb-1"><b>{{ title }}</b></h2>
+          <p class="text-muted small mb-0">Fill the details below and click Save.</p>
+        </div>
+
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-4">
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger" role="alert">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="django-form">
+              {% csrf_token %}
+
+              {% for field in form %}
+                <div class="mb-3">
+                  <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                    {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+                  </label>
+
+                  {{ field }}  {# no add_class filter #}
+
+                  {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text }}</div>
+                  {% endif %}
+
+                  {% if field.errors %}
+                    <div class="invalid-feedback d-block">
+                      {{ field.errors|striptags }}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save</button>
+                <a href="{% url 'movies:home' %}" class="btn btn-outline-secondary">Cancel</a>
+              </div>
+            </form>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  body{
+    background: linear-gradient(135deg, #f8f2f2, #FFFFFF);
+  }
+  /* Style default Django widgets like Bootstrap without needing add_class */
+  .django-form input[type="text"],
+  .django-form input[type="email"],
+  .django-form input[type="url"],
+  .django-form input[type="number"],
+  .django-form input[type="date"],
+  .django-form input[type="file"],
+  .django-form input[type="password"],
+  .django-form textarea,
+  .django-form select {
+    width: 100%;
+    display: block;
+    padding: .5rem .75rem;
+    border: 1px solid #ced4da;
+    border-radius: .5rem;
+    background-color: #fff;
+    font-size: 1rem;
+  }
+  .django-form textarea { min-height: 120px; }
+  .django-form input:focus,
+  .django-form textarea:focus,
+  .django-form select:focus {
+    outline: 0;
+    border-color: #86b7fe;
+    box-shadow: 0 0 0 .2rem rgba(13,110,253,.15);
+  }
+  /* visually mark invalid fields (server-side errors) */
+  .invalid-feedback { font-size: .9rem; }
+</style>
+{% endblock %}
+

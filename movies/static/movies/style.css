@@ -1,0 +1,74 @@
+body {
+  font-family: Arial, sans-serif;
+}
+  .navbar-custom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #fc7a10;
+    color: #fff;
+    padding: 8px 16px;
+    font-family: Arial, sans-serif;
+  }
+
+  .brand {
+    color: #050505;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+
+  .nav-links {
+    display: flex;          /* horizontal */
+    list-style: none;       /* no bullets */
+    margin: 0;
+    padding: 0;
+    gap: 16px;
+  }
+
+  .nav-item {
+    margin: 0;
+    padding: 0;
+  }
+
+  .nav-link-custom {
+    color: #fff;
+    text-decoration: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+  }
+
+  .nav-link-custom:hover {
+    background-color: #444;   /* 🔥 super obvious change */
+    color: #e77306;           /* 🔥 color change */
+    text-decoration: none;
+    cursor: pointer;          /* pointer on hover */
+  }
+
+  .nav-search {
+    display: flex;
+    gap: 8px;
+  }
+
+  .nav-search input {
+    padding: 4px 8px;
+  }
+
+  .nav-search button {
+    padding: 4px 10px;
+    cursor: pointer;
+  }
+  .catname{
+    color: #f17e0b;
+  }
+#posterCarousel .carousel-frame {
+  height: 320px;      /* adjust to taste */
+}
+#posterCarousel .carousel-frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;  /* or 'contain' for no cropping */
+  display: block;
+}
+
+ 

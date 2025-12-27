@@ -1,0 +1,134 @@
+{% extends 'movies/base.html' %}
+{% load static %}
+{% block title %}Home - Movie Hub{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+
+  <!-- Hero -->
+  <div class="row mb-4">
+    <div class="col-12 text-center">
+      <h1 class="page-title">
+        Welcome to <b>Movie</b> <strong style="color: rgb(249, 143, 4);">Hub</strong>
+      </h1>
+      <p class="text-muted mb-0">
+        <i>Discover, share, and track your favourite movies — all in one place.</i>
+      </p>
+    </div>
+  </div>
+
+  <!-- Carousel -->
+  {% if featured_movies %}
+  <div id="posterCarousel"
+       class="carousel slide mb-5"
+       data-bs-ride="carousel"
+       data-bs-interval="3000"
+       data-bs-pause="hover">
+
+    <!-- Indicators -->
+    <div class="carousel-indicators">
+      {% for movie in featured_movies %}
+        <button type="button"
+                data-bs-target="#posterCarousel"
+                data-bs-slide-to="{{ forloop.counter0 }}"
+                class="{% if forloop.first %}active{% endif %}"
+                {% if forloop.first %}aria-current="true"{% endif %}
+                aria-label="Slide {{ forloop.counter }}"></button>
+      {% endfor %}
+    </div>
+
+    <!-- Slides -->
+    <div class="carousel-inner rounded shadow-sm overflow-hidden">
+      {% for movie in featured_movies %}
+        <div class="carousel-item {% if forloop.first %}active{% endif %}">
+          <a href="{% url 'movies:movie_detail' movie.pk %}"
+             class="d-block text-decoration-none"
+             aria-label="View {{ movie.title }}">
+            <!-- control height via ratio (tweak with CSS variable if needed) -->
+            <div class="ratio ratio-16x9 bg-black">
+              {% if movie.poster %}
+                <img src="{{ movie.poster.url }}"
+                     class="d-block w-100"
+                     alt="{{ movie.title }} poster"
+                     style="object-fit: contain;">
+              {% else %}
+                <img src="{% static 'movies/placeholder_poster.jpg' %}"
+                     class="d-block w-100"
+                     alt="Poster not available"
+                     style="object-fit: contain;">
+              {% endif %}
+            </div>
+          </a>
+
+          <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded-3 p-2">
+            <h5 class="mb-1">{{ movie.title }}</h5>
+            <p class="mb-0 fst-italic">Rating: {{ movie.rating }} | {{ movie.release_date }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Controls -->
+    <button class="carousel-control-prev" type="button" data-bs-target="#posterCarousel" data-bs-slide="prev">
+      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Previous</span>
+    </button>
+    <button class="carousel-control-next" type="button" data-bs-target="#posterCarousel" data-bs-slide="next">
+      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+      <span class="visually-hidden">Next</span>
+    </button>
+  </div>
+  {% endif %}
+
+  <!-- Categories -->
+  <div class="row mb-5">
+    <div class="col-12 text-center">
+      <h2 class="mb-3"><b>Categories</b></h2>
+      <div class="d-flex flex-wrap justify-content-center gap-2">
+        {% for cat in categories %}
+          <a href="{% url 'movies:movies_by_category' cat.slug %}"
+             class="btn btn-dark category-btn px-3 py-2">
+            {{ cat.name }}
+          </a>
+        {% empty %}
+          <span class="text-muted fs-5">No categories</span>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- Latest Movies -->
+  <div class="row">
+    <div class="col-12">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0"><b>Latest Movies</b></h2>
+        <small class="text-muted d-none d-sm-inline">Tap a title for more details</small>
+      </div>
+
+      <ul class="list-group">
+        {% for movie in movies %}
+          <li class="list-group-item bg-dark text-light border-secondary
+                     d-flex flex-column flex-md-row justify-content-between align-items-md-center">
+            <div class="mb-2 mb-md-0">
+              <a href="{% url 'movies:movie_detail' movie.pk %}"
+                 class="text-decoration-none text-light fw-semibold">
+                {{ movie.title }}
+              </a>
+              <div class="small text-secondary">
+                {{ movie.release_date }}
+                {% if movie.category %} · {{ movie.category.name }}{% endif %}
+              </div>
+            </div>
+            <span class="badge bg-warning text-dark align-self-start align-self-md-center">
+              {{ movie.rating }}
+            </span>
+          </li>
+        {% empty %}
+          <li class="list-group-item">No movies yet.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

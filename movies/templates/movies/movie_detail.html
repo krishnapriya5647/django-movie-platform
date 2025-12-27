@@ -1,0 +1,192 @@
+{% extends 'movies/base.html' %}
+{% block title %}{{ movie.title }}{% endblock %}
+
+{% block content %}
+<section class="py-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-lg-10">
+
+        <!-- Movie card -->
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden mb-4">
+          <div class="row g-0">
+
+            <!-- Poster (keeps 2:3 ratio, no stretching) -->
+            <div class="col-12 col-md-4">
+              <div class="ratio rounded-0 rounded-start-4 overflow-hidden bg-light" style="--bs-aspect-ratio: 150%;"> {# 2:3 => 3/2*100 #}
+                {% if movie.poster %}
+                  <img src="{{ movie.poster.url }}"
+                       alt="{{ movie.title }} poster"
+                       class="w-100 h-100" style="object-fit: cover;">
+                {% else %}
+                  <div class="d-flex align-items-center justify-content-center text-muted">
+                    No Poster
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+
+            <!-- Details -->
+            <div class="col-12 col-md-8">
+              <div class="p-4">
+
+                <!-- Title + Category -->
+                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                  <h1 class="h3 mb-0">{{ movie.title }}</h1>
+                  {% if movie.category %}
+                    <span class="badge text-bg-primary-subtle border border-primary-subtle">
+                      {{ movie.category }}
+                    </span>
+                  {% endif %}
+                </div>
+
+                <!-- Meta -->
+                <div class="text-muted small mb-3">
+                  {% if movie.release_date %}<span class="me-3">Released: {{ movie.release_date|date:"M d, Y" }}</span>{% endif %}
+                  {% if movie.rating %}<span class="badge bg-light border border-primary  text-warning align-self-start align-self-md-center"> <i class="bi bi-star-fill me-1"></i> {{ movie.rating }}</span>{% endif %}
+                </div>
+
+                {% if movie.actors %}
+                  <p class="mb-2"><strong>Actors:</strong> {{ movie.actors }}</p>
+                {% endif %}
+
+                <!-- Description with Read more/less -->
+                {% if movie.description %}
+                <div class="mb-3">
+                  <strong>Description:</strong>
+                  <div id="descWrapper" class="desc-wrapper">
+                    <div id="movieDesc" class="desc-clamped">
+                      {{ movie.description }}
+                    </div>
+                    <button id="toggleDescBtn" type="button" class="btn btn-link p-0 mt-1 d-none">
+                      Read more
+                    </button>
+                  </div>
+                </div>
+                {% endif %}
+
+                {% if movie.trailer_url %}
+                  <p class="mb-4">
+                    <strong>Trailer:</strong>
+                    <a href="{{ movie.trailer_url }}" target="_blank" rel="noopener">Watch on YouTube</a>
+                  </p>
+                {% endif %}
+
+                <!-- Actions -->
+                <div class="d-flex flex-wrap gap-2">
+                  <!-- Favorite toggle -->
+                  <form action="{% url 'movies:toggle_favorite' movie.pk %}" method="post" class="d-inline">
+                    {% csrf_token %}
+                    {% if is_favorite %}
+                      <button type="submit" class="btn btn-outline-secondary">
+                        Remove from Favorites
+                      </button>
+                    {% else %}
+                      <button type="submit" class="btn btn-primary">
+                        Add to Favorites
+                      </button>
+                    {% endif %}
+                  </form>
+
+                  <!-- Owner actions -->
+                  {% if user == movie.added_by %}
+                    <a href="{% url 'movies:edit_movie' movie.pk %}" class="btn btn-outline-primary">
+                      Edit
+                    </a>
+                    <form action="{% url 'movies:delete_movie' movie.pk %}" method="post" class="d-inline">
+                      {% csrf_token %}
+                      <button type="submit" class="btn btn-danger">
+                        Delete
+                      </button>
+                    </form>
+                  {% endif %}
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Comments -->
+        <div class="card border-0 shadow-sm rounded-4 mb-4">
+          <div class="card-body p-4">
+            <h3 class="h5 mb-3">Comments</h3>
+
+            {% if comments %}
+              <ul class="list-group list-group-flush rounded-3 overflow-hidden mb-3">
+                {% for c in comments %}
+                  <li class="list-group-item">
+                    <div class="d-flex justify-content-between align-items-start">
+                      <div class="me-3">
+                        <strong>{{ c.user.username }}</strong>
+                        <div class="text-muted small">{{ c.created_at|date:"M d, Y · H:i" }}</div>
+                        <div class="mt-2">{{ c.text }}</div>
+                      </div>
+                    </div>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <div class="text-muted">No comments yet.</div>
+            {% endif %}
+
+            <!-- Add comment -->
+            <div class="mt-3">
+              <h4 class="h6 mb-2">Add a comment</h4>
+              <form method="post" class="row g-3">
+                {% csrf_token %}
+                {{ comment_form.as_p }}
+                <div>
+                  <button type="submit" class="btn btn-success">Post Comment</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* subtle badge color if Bootstrap doesn't include -subtle in your build */
+  .text-bg-primary-subtle{
+    background: #eef1ff !important;
+    color: #2b3fd6 !important;
+  }
+
+  /* Description clamp */
+  .desc-clamped{
+    display: -webkit-box;
+    -webkit-line-clamp: 4;         /* show first 4 lines */
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .desc-wrapper.expanded .desc-clamped{
+    -webkit-line-clamp: unset;
+    display: block;
+  }
+  #toggleDescBtn{ font-weight: 600; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const wrapper = document.getElementById('descWrapper');
+  const desc    = document.getElementById('movieDesc');
+  const btn     = document.getElementById('toggleDescBtn');
+  if(!wrapper || !desc || !btn) return;
+
+  // Show "Read more" only if content overflows the clamp
+  requestAnimationFrame(() => {
+    const isOverflowing = desc.scrollHeight > desc.clientHeight + 2;
+    if (isOverflowing) btn.classList.remove('d-none');
+  });
+
+  btn.addEventListener('click', () => {
+    const expanded = wrapper.classList.toggle('expanded');
+    btn.textContent = expanded ? 'Read less' : 'Read more';
+  });
+});
+</script>
+{% endblock %}

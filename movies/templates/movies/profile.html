@@ -1,0 +1,149 @@
+{% extends 'movies/base.html' %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+<section class="py-4">
+  <div class="container">
+    <div class="row g-4 justify-content-center">
+
+      <!-- Profile form -->
+      <div class="col-12 col-lg-7">
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-4">
+
+            <div class="d-flex align-items-center gap-3 mb-3">
+              <div class="rounded-circle d-inline-grid place-center bg-primary-subtle text-primary"
+                   style="width:56px;height:56px;font-weight:700;">
+                {{ user.username|first|upper }}
+              </div>
+              <div>
+                <h2 class="h4 mb-0">Your Profile</h2>
+                <div class="text-muted small">@{{ user.username }}</div>
+              </div>
+            </div>
+
+            {% if form.non_field_errors %}
+              <div class="alert alert-danger" role="alert">
+                {{ form.non_field_errors }}
+              </div>
+            {% endif %}
+
+            <form method="post" class="django-form">
+              {% csrf_token %}
+
+              {% for field in form %}
+                <div class="mb-3">
+                  <label for="{{ field.id_for_label }}" class="form-label fw-semibold">
+                    {{ field.label }}{% if field.field.required %} <span class="text-danger">*</span>{% endif %}
+                  </label>
+
+                  {{ field }}  {# no custom filters needed #}
+
+                  {% if field.help_text %}
+                    <div class="form-text">{{ field.help_text }}</div>
+                  {% endif %}
+
+                  {% if field.errors %}
+                    <div class="invalid-feedback d-block">
+                      {{ field.errors|striptags }}
+                    </div>
+                  {% endif %}
+                </div>
+              {% endfor %}
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a href="{% url 'movies:home' %}" class="btn btn-outline-secondary">Cancel</a>
+              </div>
+            </form>
+
+          </div>
+        </div>
+      </div>
+
+      <!-- Favorites -->
+      <div class="col-12 col-lg-5">
+        <div class="card border-0 shadow-sm rounded-4 h-100">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+              <h3 class="h5 mb-0">Your Favorites</h3>
+              <span class="badge bg-primary-subtle text-primary border border-primary-subtle">
+                {{ favorites|length }} item{{ favorites|length|pluralize }}
+              </span>
+            </div>
+
+            {% if favorites %}
+              <div class="row row-cols-1 g-3">
+                {% for fav in favorites %}
+                  {% with m=fav.movie %}
+                  <div class="col">
+                    <a href="{% url 'movies:movie_detail' m.pk %}" class="text-decoration-none text-reset">
+                      <div class="d-flex gap-3 p-2 border rounded-3 hover-shadow"
+                           style="transition:.2s box-shadow ease,.2s transform ease;">
+                        {% if m.poster %}
+                          <img src="{{ m.poster.url }}" alt="{{ m.title }}"
+                               class="rounded-2 flex-shrink-0"
+                               style="width:64px;height:88px;object-fit:cover;">
+                        {% else %}
+                          <div class="bg-light rounded-2 d-flex align-items-center justify-content-center flex-shrink-0"
+                               style="width:64px;height:88px;">
+                            <span class="text-muted small">No Poster</span>
+                          </div>
+                        {% endif %}
+                        <div class="min-w-0">
+                          <div class="fw-semibold text-truncate">{{ m.title }}</div>
+                          <div class="text-muted small">
+                            {% if m.release_date %}{{ m.release_date|date:"Y" }}{% endif %}
+                            {% if m.category %} · {{ m.category }}{% endif %}
+                            {% if m.rating %} · <span class="badge bg-light border border-primary  text-warning align-self-start align-self-md-center"> <i class="bi bi-star-fill me-1"></i> {{ m.rating }}{% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  </div>
+                  {% endwith %}
+                {% endfor %}
+              </div>
+            {% else %}
+              <div class="text-center text-muted py-4">
+                <div class="mb-2"><i class="bi bi-film"></i></div>
+                <p class="mb-0">No favorite movies yet.</p>
+              </div>
+            {% endif %}
+
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  .place-center{ place-items: center; }
+  .bg-primary-subtle{ background:#eef1ff !important; }
+  .hover-shadow:hover{ box-shadow:0 .75rem 1.5rem rgba(0,0,0,.08); transform:translateY(-2px); }
+  /* Make default Django widgets look like Bootstrap without extra filters */
+  .django-form input[type="text"],
+  .django-form input[type="email"],
+  .django-form input[type="url"],
+  .django-form input[type="number"],
+  .django-form input[type="date"],
+  .django-form input[type="password"],
+  .django-form textarea,
+  .django-form select {
+    width:100%; display:block;
+    padding:.5rem .75rem;
+    border:1px solid #ced4da;
+    border-radius:.5rem;
+    background:#ffffff; font-size:1rem;
+  }
+  .django-form textarea{ min-height:120px; }
+  .django-form input:focus,
+  .django-form textarea:focus,
+  .django-form select:focus{
+    outline:0; border-color:#86b7fe;
+    box-shadow:0 0 0 .2rem rgba(13,110,253,.15);
+  }
+</style>
+{% endblock %}

@@ -1,0 +1,76 @@
+{% extends 'movies/base.html' %}
+{% block title %}Delete · {{ movie.title }}{% endblock %}
+
+{% block content %}
+<section class="py-4">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-12 col-md-10 col-lg-7">
+
+        <!-- Header -->
+        <div class="text-center mb-3">
+          <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2">
+            <i class="bi bi-exclamation-triangle-fill me-1"></i> Delete Confirmation
+          </span>
+        </div>
+
+        <!-- Card -->
+        <div class="card border-0 shadow-sm rounded-4">
+          <div class="card-body p-4 p-md-5">
+            <div class="d-flex align-items-start gap-3 mb-3">
+              <div class="icon-circle bg-danger-subtle text-danger">
+                <i class="bi bi-trash3"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h2 class="h4 mb-1">Delete “{{ movie.title }}”?</h2>
+                <p class="text-muted mb-0">
+                  This action cannot be undone. The movie and its related data (comments, favorites) will be permanently removed.
+                </p>
+              </div>
+            </div>
+
+            {% if movie.poster %}
+              <div class="d-flex align-items-center gap-3 mb-4">
+                <img src="{{ movie.poster.url }}" alt="{{ movie.title }}" class="rounded-3 border" style="width:92px;height:128px;object-fit:cover;">
+                <div class="small text-muted">
+                  <div><strong>Category:</strong> {{ movie.category.name }}</div>
+                  {% if movie.release_date %}<div><strong>Release:</strong> {{ movie.release_date|date:"M d, Y" }}</div>{% endif %}
+                  {% if movie.rating %}<div><strong>Rating:</strong> ⭐ {{ movie.rating }}</div>{% endif %}
+                </div>
+              </div>
+            {% endif %}
+
+            <!-- Actions -->
+            <form method="post" class="d-flex flex-column flex-sm-row gap-2">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-danger d-inline-flex align-items-center gap-2 px-4">
+                <i class="bi bi-trash"></i> Yes, delete
+              </button>
+              <a href="{% url 'movies:movie_detail' movie.pk %}" class="btn btn-outline-secondary px-4">
+                Cancel
+              </a>
+            </form>
+          </div>
+        </div>
+
+        <!-- Soft note -->
+        <p class="text-center text-muted small mt-3 mb-0">
+          Need to keep it? <a href="{% url 'movies:edit_movie' movie.pk %}">Edit this movie</a> instead.
+        </p>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .icon-circle{
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    display: inline-grid; place-items: center;
+    font-size: 1.25rem;
+  }
+  .btn-danger{ box-shadow: 0 8px 20px rgba(220,53,69,.15); }
+  .btn-danger:hover{ transform: translateY(-1px); }
+</style>
+{% endblock %}
